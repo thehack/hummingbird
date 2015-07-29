@@ -12,7 +12,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {
 function preload() {
   game.stage.backgroundColor = '#BFFBFF';
  // game.load.image('hb', './img/hb15.png')
-  game.load.spritesheet('hb', '/img/spritesheet2.png', 88,72);  
+  game.load.spritesheet('hb', '/img/spritesheet.png', 88,72);  
 
   game.load.image('lavender', '/img/lavender1.png')
   game.time.advancedTiming = true;
@@ -24,11 +24,12 @@ function create() {
   game.world.setBounds(0, 0, 10000, 600);
   s = game.add.sprite(390, 290, 'hb');
   l = game.add.sprite(800, 640, 'lavender')
+
   l.scale.setTo(0.5, 0.5)
   //s.animations.add('walk');
-  s.animations.add('fly', [0, 2, 4, 6,8,7,5,3,1], 60, true, 9);
-
-    s.animations.play('fly');
+  s.animations.add('fly', [0, 2, 4, 6,8,7,5,3,1], 60, true, 13);
+  s.animations.add('hover', [9,10,11,12,11,10], 60, true, 13);
+  s.animations.play('fly');
    //s.scale.setTo(2.5, 2.5)
 
 
@@ -49,10 +50,9 @@ function create() {
 
 function update() {
 
+
   //  For example this checks if the up or down keys are pressed and moves the camera accordingly.
-  if (cursors.left.isUp && s.angle != 0){
-    s.angle += 10
-  }
+
   if (cursors.up.isDown) {
     s.y -= 6;
   } else if (cursors.down.isDown) {
@@ -60,13 +60,13 @@ function update() {
 
   } 
   if (cursors.left.isDown) {
-        if (s.angle >= -30) {
-          s.angle += -10;
-
-    }
+    s.animations.play('hover');
 
   } else {
     s.x += 4;
+    s.animations.play('fly');
+
+
   }
 
 }

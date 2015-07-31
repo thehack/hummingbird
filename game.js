@@ -1,7 +1,3 @@
-
-//855-286-2865
-
-
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {
   preload: preload,
   create: create,
@@ -16,7 +12,7 @@ function preload() {
 
   game.load.image('lavender', '/img/lavender1.png')
   game.time.advancedTiming = true;
- game.time.desiredFps = 60;
+   game.time.desiredFps = 120;
 }
 
 function create() {
@@ -29,9 +25,7 @@ function create() {
   //s.animations.add('walk');
   s.animations.add('fly', [0, 2, 4, 6,8,7,5,3,1], 60, true, 13);
   s.animations.add('hover', [9,10,11,12,11,10], 60, true, 13);
-  s.animations.play('fly');
-   //s.scale.setTo(2.5, 2.5)
-
+  s.anchor.x = 0.5;
 
   for (var i = 0; i < 20; i++) {
     game.add.image(game.world.randomX, 400, 'lavender');
@@ -50,24 +44,28 @@ function create() {
 
 function update() {
 
-
-  //  For example this checks if the up or down keys are pressed and moves the camera accordingly.
-
   if (cursors.up.isDown) {
-    s.y -= 6;
+    s.y += -1*4
   } else if (cursors.down.isDown) {
-    s.y += 6;
+    s.y += 4;
 
   } 
   if (cursors.left.isDown) {
-    s.animations.play('hover');
-
-  } else {
-    s.x += 4;
     s.animations.play('fly');
 
+      s.scale.x = -1
+        s.x -= 4;
 
+  } else if (cursors.right.isDown) {
+  s.animations.play('fly');
+      s.scale.x = 1;
+  
+    s.x += 4;
+
+  } else {
+    s.animations.play('hover')
   }
+
 
 }
 

@@ -12,9 +12,8 @@ function preload() {
 
   game.load.image('lavender', '/img/lavender1.png')
   game.time.advancedTiming = true;
-   game.time.desiredFps = 120;
+  game.time.desiredFps = 120;
 }
-
 function create() {
 
   game.world.setBounds(0, 0, 10000, 600);
@@ -27,7 +26,43 @@ function create() {
   s.animations.add('hover', [9,10,11,12,11,10], 60, true, 13);
   s.anchor.x = 0.5;
 
-  for (var i = 0; i < 20; i++) {
+  fuelBoard = game.add.graphics(0, 0);
+
+  // set a fill and line style
+  fuelBoard.beginFill(0xFF3300);
+  fuelBoard.lineStyle(2, 0x000000, 1);
+  
+  // draw a shape
+  fuelBoard.moveTo(50,50);
+  fuelBoard.lineTo(250, 50);
+  fuelBoard.lineTo(250, 100);
+  fuelBoard.lineTo(50, 100);
+
+  fuelBoard.endFill();
+  fuelBoard.fixedToCamera = true;
+
+
+f = game.add.graphics();
+f.lineStyle(0, 0x000000, 1)
+f.beginFill(0x000000)
+f.drawRect(50,50,200,50)
+f.x = 0
+f.x.anchor = 0
+f.fixedToCamera = true;
+
+    //  A mask is a Graphics object
+    mask = game.add.graphics(0, 0);
+
+    //  Shapes drawn to the Graphics object must be filled.
+    mask.beginFill(0xffffff);
+
+    //  Here we'll draw a circle
+    mask.drawRect(50, 50, 200, 50);
+    mask.fixedToCamera = true;
+    //  And apply it to the Sprite
+    f.mask = mask;
+
+      for (var i = 0; i < 20; i++) {
     game.add.image(game.world.randomX, 400, 'lavender');
 
   }
@@ -43,35 +78,38 @@ function create() {
 }
 
 function update() {
-
+  // SCALE DOWN FUEL. NOT WORKING.
+    mask.scale.x -= .001
+    
+  
   if (cursors.up.isDown) {
-    s.y += -1*4
-  } else if (cursors.down.isDown) {
+    s.y += -4
+  }
+  else if (cursors.down.isDown) {
     s.y += 4;
-
   } 
+ 
   if (cursors.left.isDown) {
     s.animations.play('fly');
 
       s.scale.x = -1
         s.x -= 4;
 
-  } else if (cursors.right.isDown) {
+  } 
+  else if (cursors.right.isDown) {
   s.animations.play('fly');
       s.scale.x = 1;
-  
     s.x += 4;
-
-  } else {
+ 
+  } 
+  else {
     s.animations.play('hover')
   }
-
-
 }
 
 function render() {
 
   game.debug.cameraInfo(game.camera, 32, 500);
-     game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");   
-
+     game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
 }
+body = document.getElementsByTagName('body');

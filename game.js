@@ -7,7 +7,6 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {
 
 function preload() {
   game.stage.backgroundColor = '#BFFBFF';
- // game.load.image('hb', './img/hb15.png')
   game.load.spritesheet('hb', '/img/spritesheet.png', 88,72);  
 
   game.load.image('lavender', '/img/lavender1.png')
@@ -29,25 +28,22 @@ function create() {
   fuelBoard = game.add.graphics(0, 0);
 
   // set a fill and line style
-  fuelBoard.beginFill(0xFF3300);
+  fuelBoard.beginFill(0xff005d);
   fuelBoard.lineStyle(2, 0x000000, 1);
   
   // draw a shape
-  fuelBoard.moveTo(50,50);
-  fuelBoard.lineTo(250, 50);
-  fuelBoard.lineTo(250, 100);
-  fuelBoard.lineTo(50, 100);
+  fuelBoard = game.add.graphics();
+  fuelBoard.lineStyle(2, 0x000000);
 
   fuelBoard.endFill();
   fuelBoard.fixedToCamera = true;
+  fuelBoard.drawRect(50,50,200,20)
 
 
 f = game.add.graphics();
 f.lineStyle(0, 0x000000, 1)
-f.beginFill(0x000000)
-f.drawRect(50,50,200,50)
-f.x = 0
-f.x.anchor = 0
+f.beginFill(0x2300ff)
+f.drawRect(50,50,200,20)
 f.fixedToCamera = true;
 
     //  A mask is a Graphics object
@@ -57,7 +53,7 @@ f.fixedToCamera = true;
     mask.beginFill(0xffffff);
 
     //  Here we'll draw a circle
-    mask.drawRect(50, 50, 200, 50);
+    mask.drawRect(50, 50, 200, 20);
     mask.fixedToCamera = true;
     //  And apply it to the Sprite
     f.mask = mask;

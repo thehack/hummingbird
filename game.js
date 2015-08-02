@@ -9,7 +9,7 @@ function preload() {
   game.stage.backgroundColor = '#BFFBFF';
   game.load.spritesheet('hb', '/img/spritesheet.png', 88,72);  
 
-  game.load.image('lavender', '/img/lavender1.png')
+  game.load.image('lavender', './img/lavender1.png')
   game.time.advancedTiming = true;
   game.time.desiredFps = 120;
 }

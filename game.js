@@ -76,6 +76,10 @@ collisions = 0;
 }
 
 function update() {
+
+  if (game.input.mousePointer.isDown) {
+    console.log("Mouse X when you clicked was: "+game.input.mousePointer.x);
+  }
   // SCALE DOWN FUEL. NOT WORKING.
   if (mask.scale.x >= 0) {
     mask.scale.x -= .001
@@ -113,8 +117,8 @@ function update() {
       (player.top + 22 <= flower.bottom)) {
     
     collisions +=1
-    if (mask.scale.x < 100) {
-      mask.scale += .001;
+    if (mask.scale.x < 1) {
+      mask.scale.x += .002;
     }
   }
 })

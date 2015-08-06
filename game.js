@@ -1,4 +1,4 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'hummingbird', {
   preload: preload,
   create: create,
   update: update,
@@ -71,14 +71,17 @@ function create() {
   //  This will create a new object called "cursors", inside it will contain 4 objects: up, down, left and right.
   //  These are all Phaser.Key objects, so anything you can do with a Key object you can do with these.
   cursors = game.input.keyboard.createCursorKeys();
-collisions = 0;
+  collisions = 0;
+  game.input.onDown.add(listener, this);
 
 }
 
-function update() {
 
+function update() {
   if (game.input.mousePointer.isDown) {
     console.log("Mouse X when you clicked was: "+game.input.mousePointer.x);
+
+
   }
   // SCALE DOWN FUEL. NOT WORKING.
   if (mask.scale.x >= 0) {
@@ -108,7 +111,7 @@ function update() {
  
   } 
   else {
-    player.animations.play('hover')
+    player.animations.play('hover' || mode)
   }
   flowers.forEach(function(flower){
   if ((player.right >= flower.left) &&   
@@ -124,15 +127,30 @@ function update() {
 })
 
 }
+var  listener = function(pointer){
+  //determine direction to fly
+  if (pointer.x < player.x){
+      player.direction = -1;
 
+  } else {
+      player.direction = 1;
+  }
+  // A Squared + B Squared = C Squared (formula for the hypotenuse of a triangle - needed to determine tween time)
+  var hPixels = Math.sqrt(Math.pow((player.x - pointer.x), 2) + Math.pow((player.y - pointer.y), 2));
+  //our standard rate of travel is 4 pixels per frame, 240 pixels a second.
+  // we should be taking a second for every 240 pixels, so our time mulitplier is 4.17
+  game.add.tween(player).to( { x: pointer.x -45*player.direction, y: pointer.y -24}, hPixels*4.17, Phaser.Easing.Linear.None, true);
+  player.scale.x = (1 * player.direction);
+
+  console.log('moving to ' + event.x + ", "+ event.y)
+
+  player.mode = 'fly';
+};
 // check for collision with flowers
-
-
-
 
 function render() {
 
   game.debug.cameraInfo(game.camera, 32, 500);
-  game.debug.text('Collisions:' + (collisions), 10, 10, '00ff00')
-//  game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
+  // game.debug.text('Collisions:' + (collisions), 10, 10, '00ff00')
+  //  game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
 }

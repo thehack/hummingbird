@@ -50,46 +50,34 @@ function create() {
   f.mask = mask;
 
   
+  // The little flowers our with nectar for our bird to power-up
   var lavender = game.add.bitmapData(10,10);
-
-    lavender.ctx.beginPath();
-    lavender.ctx.rect(0,0,10,10);
-    lavender.ctx.fillStyle = '#C097E6';
-    lavender.ctx.fill();
-
-    // use the bitmap data as the texture for the sprite
-    //game.add.sprite(200, 200, bmd);
-
+  lavender.ctx.beginPath();
+  lavender.ctx.rect(0,0,10,10);
+  lavender.ctx.fillStyle = '#C097E6';
+  lavender.ctx.fill();
   flowers = [];
-  for (var i = 0; i < 20; i++) {
-
+  for (var i = 0; i < 40; i++) {
     flowers.push(game.add.sprite(game.world.randomX,game.world.randomY,lavender))
-  }
+  };
 
   game.camera.follow(player); //always center player
 
-  //  This will create a new object called "cursors", inside it will contain 4 objects: up, down, left and right.
-  //  These are all Phaser.Key objects, so anything you can do with a Key object you can do with these.
   cursors = game.input.keyboard.createCursorKeys();
-  collisions = 0;
   game.input.onDown.add(listener, this);
-
 }
-
 
 function update() {
   if (game.input.mousePointer.isDown) {
     console.log("Mouse X when you clicked was: "+game.input.mousePointer.x);
-
-
   }
-  // SCALE DOWN FUEL. NOT WORKING.
+
+  // SCALE DOWN FUEL. 
   if (mask.scale.x >= 0) {
     mask.scale.x -= .001
   }
 
-    
-  
+  // Arrow Keys
   if (cursors.up.isDown) {
     player.y += -4
   }
@@ -111,7 +99,7 @@ function update() {
  
   } 
   else {
-    player.animations.play('hover' || mode)
+    player.animations.play( player.mode)
   }
   flowers.forEach(function(flower){
   if ((player.right >= flower.left) &&   
@@ -119,7 +107,6 @@ function update() {
       (player.top +22  >= flower.top) && 
       (player.top + 22 <= flower.bottom)) {
     
-    collisions +=1
     if (mask.scale.x < 1) {
       mask.scale.x += .002;
     }
@@ -127,30 +114,33 @@ function update() {
 })
 
 }
+
 var  listener = function(pointer){
+  player.mode = 'fly';
+
   //determine direction to fly
   if (pointer.x < player.x){
       player.direction = -1;
 
   } else {
-      player.direction = 1;
+    player.direction = 1;
   }
   // A Squared + B Squared = C Squared (formula for the hypotenuse of a triangle - needed to determine tween time)
   var hPixels = Math.sqrt(Math.pow((player.x - pointer.x), 2) + Math.pow((player.y - pointer.y), 2));
   //our standard rate of travel is 4 pixels per frame, 240 pixels a second.
   // we should be taking a second for every 240 pixels, so our time mulitplier is 4.17
-  game.add.tween(player).to( { x: pointer.x -45*player.direction, y: pointer.y -24}, hPixels*4.17, Phaser.Easing.Linear.None, true);
+  var tweenTime = hPixels*4.17
+
+  setTimeout(function(){player.mode = 'hover'}, tweenTime*.5)
+  game.add.tween(player).to( { x: pointer.x -45*player.direction, y: pointer.y -24}, tweenTime, Phaser.Easing.Linear.None, true);
   player.scale.x = (1 * player.direction);
 
   console.log('moving to ' + event.x + ", "+ event.y)
-
-  player.mode = 'fly';
 };
 // check for collision with flowers
 
 function render() {
 
   game.debug.cameraInfo(game.camera, 32, 500);
-  // game.debug.text('Collisions:' + (collisions), 10, 10, '00ff00')
   //  game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
 }

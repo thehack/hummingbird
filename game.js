@@ -68,9 +68,6 @@ function create() {
 }
 
 function update() {
-  if (game.input.mousePointer.isDown) {
-    console.log("Mouse X when you clicked was: "+game.input.mousePointer.x);
-  }
 
   // SCALE DOWN FUEL. 
   if (mask.scale.x >= 0) {
@@ -119,20 +116,20 @@ var  listener = function(pointer){
   player.mode = 'fly';
 
   //determine direction to fly
-  if (pointer.x < player.x){
+  if (pointer.worldX < player.x){
       player.direction = -1;
 
   } else {
     player.direction = 1;
   }
   // A Squared + B Squared = C Squared (formula for the hypotenuse of a triangle - needed to determine tween time)
-  var hPixels = Math.sqrt(Math.pow((player.x - pointer.x), 2) + Math.pow((player.y - pointer.y), 2));
+  var hPixels = Math.sqrt(Math.pow((player.x - pointer.worldX), 2) + Math.pow((player.y - pointer.worldY), 2));
   //our standard rate of travel is 4 pixels per frame, 240 pixels a second.
   // we should be taking a second for every 240 pixels, so our time mulitplier is 4.17
   var tweenTime = hPixels*4.17
 
   setTimeout(function(){player.mode = 'hover'}, tweenTime*.5)
-  game.add.tween(player).to( { x: pointer.x -45*player.direction, y: pointer.y -24}, tweenTime, Phaser.Easing.Linear.None, true);
+  game.add.tween(player).to( { x: pointer.worldX -45*player.direction, y: pointer.worldY -24}, tweenTime, Phaser.Easing.Linear.None, true);
   player.scale.x = (1 * player.direction);
 
   console.log('moving to ' + event.x + ", "+ event.y)

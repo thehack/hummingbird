@@ -23,6 +23,7 @@ function create() {
   t2.fixedToCamera = true;
 
 
+
   player = game.add.sprite(0, 290, 'hb');
 
   player.animations.add('fly', [0, 2, 4, 6,8,7,5,3,1], 60, true, 13);
@@ -39,6 +40,9 @@ function create() {
   nectarGauge.fixedToCamera = true;
   nectarGauge.drawRect(550,50,200,20)  
 
+  gameOver = game.add.text(150,250, player.x. toString(), {fontSize: '90px'});
+  gameOver.fixedToCamera = true;
+  gameOver.visible = false;
 
   f = game.add.bitmapData(200,20);
   f.ctx.beginPath();
@@ -78,7 +82,12 @@ function create() {
 function update() {
    nectar.scale.x = 0;  
   // SCALE DOWN FUEL. 
-  if (player.fuel > 0) {
+  if (player.fuel <= 0) {    
+    gameOver.text = "Game Over\n" +Math.round(player.x) + "Points";
+
+    gameOver.visible = true;
+  }
+  else {
         fuel.scale.x = player.fuel/100;
   player.fuel -= 0.25;
 

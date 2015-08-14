@@ -16,13 +16,12 @@ var flowers = [];
 function create() {
   game.world.setBounds(0, 0, 10000, 600);
 
-  t1 = game.add.text(50,25, "FUEL");
-  t2 = game.add.text(550,25, "NECTAR");
+  var style = {fontSize: '18px'}
+  t1 = game.add.text(50,25, "ENERGY", style);
+  t2 = game.add.text(550,25, "NECTAR", style);
 
   t1.fixedToCamera = true;
   t2.fixedToCamera = true;
-
-
 
   player = game.add.sprite(0, 290, 'hb');
 
@@ -43,7 +42,10 @@ function create() {
   gameOver = game.add.text(150,250, player.x. toString(), {fontSize: '90px'});
   gameOver.fixedToCamera = true;
   gameOver.visible = false;
-
+  
+  //gameOver.inputEnabled = true;
+  //gameOver.events.onInputUp.add(function() {alert('clicked')})
+  
   f = game.add.bitmapData(200,20);
   f.ctx.beginPath();
   f.ctx.rect(0,0,200,20);
@@ -81,16 +83,15 @@ function create() {
 
 function update() {
    nectar.scale.x = 0;  
-  // SCALE DOWN FUEL. 
   if (player.fuel <= 0) {    
-    gameOver.text = "Game Over\n" +Math.round(player.x) + "Points";
+    gameOver.text = "Game Over\n" +Math.round(player.x) + " Points";
 
     gameOver.visible = true;
-  }
-  else {
-        fuel.scale.x = player.fuel/100;
-  player.fuel -= 0.25;
-
+    player.y += 6;
+  } 
+  else {  // SCALE DOWN FUEL. 
+    fuel.scale.x = player.fuel/100;
+    player.fuel -= 0.25;
   }
 
   // Arrow Keys
@@ -122,8 +123,10 @@ function update() {
         (player.right <= flower.right) && 
         (player.top +22  >= flower.top) && 
         (player.top + 22 <= flower.bottom)) {
-      if (player.fuel < 100 && flower.juice >= 0) {
-        player.fuel += 0.5;
+      if (flower.juice >= 0) {
+        if (player.fuel <  100) {
+          player.fuel += 0.5;
+        }
         flower.juice -=0.25;
         nectar.scale.x = flower.juice/100;
         
@@ -134,6 +137,9 @@ function update() {
 }
 
 var  listener = function(pointer){
+  if (gameOver.visible === true) {
+   return;
+  }
   player.mode = 'fly';
 
   //determine direction to fly

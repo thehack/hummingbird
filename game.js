@@ -15,40 +15,46 @@ function preload() {
 var flowers = [];
 function create() {
   game.world.setBounds(0, 0, 10000, 600);
+
+  t1 = game.add.text(50,25, "FUEL");
+  t2 = game.add.text(550,25, "NECTAR");
+
+  t1.fixedToCamera = true;
+  t2.fixedToCamera = true;
+
+
   player = game.add.sprite(0, 290, 'hb');
 
-  //player.animationplayer.add('walk');
   player.animations.add('fly', [0, 2, 4, 6,8,7,5,3,1], 60, true, 13);
   player.animations.add('hover', [9,10,11,12,11,10], 60, true, 13);
   player.anchor.x = 0.5;
+  player.fuel = 100;
+  fuelGauge = game.add.graphics();
+  fuelGauge.lineStyle(2, 0x000000, 1);
+  fuelGauge.fixedToCamera = true;
+  fuelGauge.drawRect(50,50,200,20)
 
-  fuelBoard = game.add.graphics(0, 0);
+  nectarGauge = game.add.graphics();
+  nectarGauge.lineStyle(2, 0x000000, 1);
+  nectarGauge.fixedToCamera = true;
+  nectarGauge.drawRect(550,50,200,20)  
 
-  // set a fill and line style
-  fuelBoard.beginFill(0xff005d);
-  fuelBoard.lineStyle(2, 0x000000, 1);
 
-  // draw a shape
-  fuelBoard = game.add.graphics();
-  fuelBoard.lineStyle(2, 0x000000);
+  f = game.add.bitmapData(200,20);
+  f.ctx.beginPath();
+  f.ctx.rect(0,0,200,20);
+  f.ctx.fillStyle = '#000000';
+  f.ctx.fill();
+  fuel = game.add.sprite(50,50, f)
+  fuel.fixedToCamera = true;
 
-  fuelBoard.endFill();
-  fuelBoard.fixedToCamera = true;
-  fuelBoard.drawRect(50,50,200,20)
-
-  f = game.add.graphics();
-  f.lineStyle(0, 0x000000, 1)
-  f.beginFill(0x2300ff)
-  f.drawRect(50,50,200,20)
-  f.fixedToCamera = true;
-
-  //  The mask is a work-around because incremtally reducing the width of the fuel gauge moves it.
-  mask = game.add.graphics(0, 0);
-  mask.beginFill(0xffffff);
-  mask.drawRect(50, 50, 200, 20);
-  mask.fixedToCamera = true;
-  f.mask = mask;
-
+  n = game.add.bitmapData(200,20);
+  n.ctx.beginPath();
+  n.ctx.rect(0,0,200,20);
+  n.ctx.fillStyle = '#000000';
+  n.ctx.fill();
+  nectar = game.add.sprite(550,50, n)
+  nectar.fixedToCamera = true;
   
   // The little flowers our with nectar for our bird to power-up
   var lavender = game.add.bitmapData(10,10);
@@ -58,7 +64,9 @@ function create() {
   lavender.ctx.fill();
   flowers = [];
   for (var i = 0; i < 40; i++) {
-    flowers.push(game.add.sprite(game.world.randomX,game.world.randomY,lavender))
+    var flower = game.add.sprite(game.world.randomX,game.world.randomY,lavender)
+    flower.juice = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+    flowers.push(flower)
   };
 
   game.camera.follow(player); //always center player
@@ -68,10 +76,12 @@ function create() {
 }
 
 function update() {
-
+   nectar.scale.x = 0;  
   // SCALE DOWN FUEL. 
-  if (mask.scale.x >= 0) {
-    mask.scale.x -= .001
+  if (player.fuel > 0) {
+        fuel.scale.x = player.fuel/100;
+  player.fuel -= 0.25;
+
   }
 
   // Arrow Keys
@@ -99,17 +109,19 @@ function update() {
     player.animations.play( player.mode)
   }
   flowers.forEach(function(flower){
-  if ((player.right >= flower.left) &&   
-      (player.right <= flower.right) && 
-      (player.top +22  >= flower.top) && 
-      (player.top + 22 <= flower.bottom)) {
+    if ((player.right >= flower.left) &&   
+        (player.right <= flower.right) && 
+        (player.top +22  >= flower.top) && 
+        (player.top + 22 <= flower.bottom)) {
+      if (player.fuel < 100 && flower.juice >= 0) {
+        player.fuel += 0.5;
+        flower.juice -=0.25;
+        nectar.scale.x = flower.juice/100;
+        
+      }
+     } 
     
-    if (mask.scale.x < 1) {
-      mask.scale.x += .002;
-    }
-  }
-})
-
+  })
 }
 
 var  listener = function(pointer){

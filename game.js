@@ -1,4 +1,11 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'hummingbird', {
+var w=window,
+d=document,
+e=d.documentElement,
+g=d.getElementsByTagName('body')[0],
+x=w.innerWidth||e.clientWidth||g.clientWidth,
+y=w.innerHeight||e.clientHeight||g.clientHeight;
+
+var game = new Phaser.Game(x, y, Phaser.AUTO, 'hummingbird', {
   preload: preload,
   create: create,
   update: update,
@@ -12,9 +19,8 @@ function preload() {
   game.time.desiredFps = 120;
 }
 
-var flowers = [];
 function create() {
-  game.world.setBounds(0, 0, 10000, 600);
+  game.world.setBounds(0, 0, 10000, y);
 
   var style = {fontSize: '18px'}
   t1 = game.add.text(50,25, "ENERGY", style);
@@ -23,12 +29,12 @@ function create() {
   t1.fixedToCamera = true;
   t2.fixedToCamera = true;
 
-  player = game.add.sprite(0, 290, 'hb');
+  player = game.add.sprite(100,290, 'hb');
+  player.visible = false;
 
   player.animations.add('fly', [0, 2, 4, 6,8,7,5,3,1], 60, true, 13);
   player.animations.add('hover', [9,10,11,12,11,10], 60, true, 13);
   player.anchor.x = 0.5;
-  player.fuel = 100;
   fuelGauge = game.add.graphics();
   fuelGauge.lineStyle(2, 0x000000, 1);
   fuelGauge.fixedToCamera = true;
@@ -39,12 +45,11 @@ function create() {
   nectarGauge.fixedToCamera = true;
   nectarGauge.drawRect(550,50,200,20)  
 
-  gameOver = game.add.text(150,250, player.x. toString(), {fontSize: '90px'});
-  gameOver.fixedToCamera = true;
-  gameOver.visible = false;
-  
-  //gameOver.inputEnabled = true;
-  //gameOver.events.onInputUp.add(function() {alert('clicked')})
+  text = game.add.text(150,250, "BEGIN", {fontSize: '90px'});
+  text.fixedToCamera = true;
+  text.visible = true;
+  text.inputEnabled = true;
+  text.events.onInputUp.add(function() {startGame()})
   
   f = game.add.bitmapData(200,20);
   f.ctx.beginPath();
@@ -63,35 +68,58 @@ function create() {
   nectar.fixedToCamera = true;
   
   // The little flowers our with nectar for our bird to power-up
-  var lavender = game.add.bitmapData(10,10);
+  flowers = game.add.group();
+
+  lavender = game.add.bitmapData(10,10);
   lavender.ctx.beginPath();
   lavender.ctx.rect(0,0,10,10);
   lavender.ctx.fillStyle = '#C097E6';
   lavender.ctx.fill();
-  flowers = [];
-  for (var i = 0; i < 40; i++) {
-    var flower = game.add.sprite(game.world.randomX,game.world.randomY,lavender)
-    flower.juice = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
-    flowers.push(flower)
-  };
+
 
   game.camera.follow(player); //always center player
 
   cursors = game.input.keyboard.createCursorKeys();
   game.input.onDown.add(listener, this);
+ 
+}
+
+function gameOver() {
+  game.tweens.pauseAll()
+  player.visible = false;
+  text.text = "Game Over\n" +Math.round(player.x) + " Points";
+  text.visible = true;
+
+  flowers.removeChildren(0,39)
+}
+
+function startGame() {
+  player.animations.play('hover');
+
+  player.fuel = 100;
+  player.visible = true;
+  text.visible = false;
+  player.x = 100;
+  player.y = 290;
+  for (var i = 0; i < 40; i++) {
+    var flower = flowers.create(game.world.randomX,game.world.randomY,lavender);
+    flower.juice = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+  };
+
+  //game.tweens.resumeAll()
+
 }
 
 function update() {
    nectar.scale.x = 0;  
   if (player.fuel <= 0) {    
-    gameOver.text = "Game Over\n" +Math.round(player.x) + " Points";
-
-    gameOver.visible = true;
-    player.y += 6;
+    gameOver()
   } 
-  else {  // SCALE DOWN FUEL. 
+  else {  // SHOW AND SCALE DOWN FUEL. 
     fuel.scale.x = player.fuel/100;
-    player.fuel -= 0.25;
+    if (text.visible === false) {
+      player.fuel -= 0.25;
+    }
   }
 
   // Arrow Keys
@@ -134,32 +162,32 @@ function update() {
      } 
     
   })
+
 }
 
 var  listener = function(pointer){
-  if (gameOver.visible === true) {
-   return;
+  if (text.visible === false) {
+      
+    player.mode = 'fly';
+
+    //determine direction to fly
+    if (pointer.worldX < player.x){
+        player.direction = -1;
+
+    } else {
+      player.direction = 1;
+    }
+    // A Squared + B Squared = C Squared (formula for the hypotenuse of a triangle - needed to determine tween time)
+    var hPixels = Math.sqrt(Math.pow((player.x - pointer.worldX), 2) + Math.pow((player.y - pointer.worldY), 2));
+    //our standard rate of travel is 4 pixels per frame, 240 pixels a second.
+    // we should be taking a second for every 240 pixels, so our time mulitplier is 4.17
+    var tweenTime = hPixels*4.17
+
+    setTimeout(function(){player.mode = 'hover'}, tweenTime*.5)
+    game.add.tween(player).to( { x: pointer.worldX -45*player.direction, y: pointer.worldY -24}, tweenTime, Phaser.Easing.Linear.None, true);
+    player.scale.x = (1 * player.direction);
+
   }
-  player.mode = 'fly';
-
-  //determine direction to fly
-  if (pointer.worldX < player.x){
-      player.direction = -1;
-
-  } else {
-    player.direction = 1;
-  }
-  // A Squared + B Squared = C Squared (formula for the hypotenuse of a triangle - needed to determine tween time)
-  var hPixels = Math.sqrt(Math.pow((player.x - pointer.worldX), 2) + Math.pow((player.y - pointer.worldY), 2));
-  //our standard rate of travel is 4 pixels per frame, 240 pixels a second.
-  // we should be taking a second for every 240 pixels, so our time mulitplier is 4.17
-  var tweenTime = hPixels*4.17
-
-  setTimeout(function(){player.mode = 'hover'}, tweenTime*.5)
-  game.add.tween(player).to( { x: pointer.worldX -45*player.direction, y: pointer.worldY -24}, tweenTime, Phaser.Easing.Linear.None, true);
-  player.scale.x = (1 * player.direction);
-
-  console.log('moving to ' + event.x + ", "+ event.y)
 };
 // check for collision with flowers
 

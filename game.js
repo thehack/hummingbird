@@ -5,7 +5,7 @@ g=d.getElementsByTagName('body')[0],
 x=w.innerWidth||e.clientWidth||g.clientWidth,
 y=w.innerHeight||e.clientHeight||g.clientHeight;
 
-var game = new Phaser.Game(x, y, Phaser.AUTO, 'hummingbird', {
+var game = new Phaser.Game(960, 480, Phaser.AUTO, 'hummingbird', {
   preload: preload,
   create: create,
   update: update,
@@ -20,7 +20,7 @@ function preload() {
 }
 
 function create() {
-  game.world.setBounds(0, 0, 10000, y);
+  game.world.setBounds(0, 0, 10000, 475);
 
   var style = {fontSize: '18px'}
   t1 = game.add.text(50,25, "ENERGY", style);
@@ -49,7 +49,7 @@ function create() {
   text.fixedToCamera = true;
   text.visible = true;
   text.inputEnabled = true;
-  text.events.onInputUp.add(function() {startGame()})
+  text.events.onInputUp.add(startGame())
   
   f = game.add.bitmapData(200,20);
   f.ctx.beginPath();

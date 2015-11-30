@@ -8,6 +8,8 @@ y=w.innerHeight||e.clientHeight||g.clientHeight;
 var game = new Phaser.Game(960, 480, Phaser.AUTO, 'hummingbird', {
   preload: preload,
   create: create,
+  gameOver: gameOver,
+  startGame: startGame,
   update: update,
   render: render
 });
@@ -49,7 +51,7 @@ function create() {
   text.fixedToCamera = true;
   text.visible = true;
   text.inputEnabled = true;
-  text.events.onInputUp.add(startGame())
+  text.events.onInputUp.add(startGame)
   
   f = game.add.bitmapData(200,20);
   f.ctx.beginPath();

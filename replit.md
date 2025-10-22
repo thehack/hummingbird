@@ -24,6 +24,11 @@ A simple HTML5 game built with Phaser.js where you control a hummingbird collect
     - UI elements now use percentage-based positioning instead of fixed pixels
     - Added resize callback to handle window size changes
     - Game maintains aspect ratio using Phaser SHOW_ALL scale mode
+  - Replaced purple square placeholders with lavender flower graphics
+    - Implemented two-layer flower system: 10x10 hitbox for precise collision + decorative image
+    - Generated AI lavender flower sprite for visual appeal
+    - Maintained exact 10x10 pixel collision detection for precise refueling gameplay
+    - Added fade-out effect as nectar depletes from flowers
 
 ## How to Run
 The game runs via a simple HTTP server on port 5000. Use arrow keys or click to move the hummingbird and collect nectar from flowers.

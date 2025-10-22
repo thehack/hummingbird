@@ -35,6 +35,16 @@ function preload() {
 function create() {
   game.world.setBounds(0, 0, 10000, 475);
 
+  // Create flowers group FIRST so they render behind the player
+  flowers = game.add.group();
+  
+  // Create reusable 10x10 transparent hitbox for collision detection
+  hitboxBitmap = game.add.bitmapData(10,10);
+  hitboxBitmap.ctx.beginPath();
+  hitboxBitmap.ctx.rect(0,0,10,10);
+  hitboxBitmap.ctx.fillStyle = 'rgba(0,0,0,0)'; // Completely transparent
+  hitboxBitmap.ctx.fill();
+
   var style = {fontSize: '18px'}
   t1 = game.add.text(0,0, "ENERGY", style);
   t2 = game.add.text(0,0, "NECTAR", style);
@@ -77,16 +87,6 @@ function create() {
   n.ctx.fill();
   nectar = game.add.sprite(0,0, n)
   nectar.fixedToCamera = true;
-  
-  // The little flowers with nectar for our bird to power-up
-  flowers = game.add.group();
-
-  // Create reusable 10x10 transparent hitbox for collision detection
-  hitboxBitmap = game.add.bitmapData(10,10);
-  hitboxBitmap.ctx.beginPath();
-  hitboxBitmap.ctx.rect(0,0,10,10);
-  hitboxBitmap.ctx.fillStyle = 'rgba(0,0,0,0)'; // Completely transparent
-  hitboxBitmap.ctx.fill();
 
   game.camera.follow(player); //always center player
 
@@ -102,6 +102,11 @@ function gameOver() {
   text.text = "Game Over\n" +Math.round(player.x) + " Points";
   text.visible = true;
 
+  // Clean up flowers and their associated sprites
+  flowers.forEach(function(flower){
+    if (flower.flowerImage) flower.flowerImage.destroy();
+    if (flower.hitboxIndicator) flower.hitboxIndicator.destroy();
+  });
   flowers.removeChildren(0,39)
 }
 
@@ -126,6 +131,13 @@ function startGame() {
     flowerImage.anchor.set(0.5, 0.5);
     flowerImage.scale.set(0.15); // Scale to visible size
     flower.flowerImage = flowerImage;
+    
+    // Add visible hitbox indicator - small circle in center
+    var hitboxIndicator = game.add.graphics(x + 5, y + 5);
+    hitboxIndicator.beginFill(0xFF69B4, 0.6); // Pink with transparency
+    hitboxIndicator.drawCircle(0, 0, 8); // 8 pixel diameter circle
+    hitboxIndicator.endFill();
+    flower.hitboxIndicator = hitboxIndicator;
   };
 
   //game.tweens.resumeAll()
@@ -180,9 +192,12 @@ function update() {
         flower.juice -=0.25;
         nectar.scale.x = flower.juice/100;
         
-        // Fade out flower as nectar depletes
+        // Fade out flower and hitbox as nectar depletes
         if (flower.flowerImage) {
           flower.flowerImage.alpha = flower.juice / 100;
+        }
+        if (flower.hitboxIndicator) {
+          flower.hitboxIndicator.alpha = flower.juice / 100;
         }
       }
      } 

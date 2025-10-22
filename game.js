@@ -5,7 +5,7 @@ g=d.getElementsByTagName('body')[0],
 x=w.innerWidth||e.clientWidth||g.clientWidth,
 y=w.innerHeight||e.clientHeight||g.clientHeight;
 
-var game = new Phaser.Game(960, 480, Phaser.AUTO, 'hummingbird', {
+var game = new Phaser.Game(960, 480, Phaser.AUTO, '', {
   preload: preload,
   create: create,
   gameOver: gameOver,
@@ -14,19 +14,29 @@ var game = new Phaser.Game(960, 480, Phaser.AUTO, 'hummingbird', {
   render: render
 });
 
+window.addEventListener('resize', function() {
+  game.scale.refresh();
+});
+
 function preload() {
   game.stage.backgroundColor = '#BFFBFF';
   game.load.spritesheet('hb', './img/spritesheet.png', 88,72);  
   game.time.advancedTiming = true;
   game.time.desiredFps = 120;
+  
+  game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+  game.scale.pageAlignHorizontally = true;
+  game.scale.pageAlignVertically = true;
+  
+  game.scale.setResizeCallback(layoutUI, this);
 }
 
 function create() {
   game.world.setBounds(0, 0, 10000, 475);
 
   var style = {fontSize: '18px'}
-  t1 = game.add.text(50,25, "ENERGY", style);
-  t2 = game.add.text(550,25, "NECTAR", style);
+  t1 = game.add.text(0,0, "ENERGY", style);
+  t2 = game.add.text(0,0, "NECTAR", style);
 
   t1.fixedToCamera = true;
   t2.fixedToCamera = true;
@@ -37,28 +47,26 @@ function create() {
   player.animations.add('fly', [0, 2, 4, 6,8,7,5,3,1], 60, true, 13);
   player.animations.add('hover', [9,10,11,12,11,10], 60, true, 13);
   player.anchor.x = 0.5;
+  
   fuelGauge = game.add.graphics();
-  fuelGauge.lineStyle(2, 0x000000, 1);
   fuelGauge.fixedToCamera = true;
-  fuelGauge.drawRect(50,50,200,20)
 
   nectarGauge = game.add.graphics();
-  nectarGauge.lineStyle(2, 0x000000, 1);
   nectarGauge.fixedToCamera = true;
-  nectarGauge.drawRect(550,50,200,20)  
 
-  text = game.add.text(150,250, "BEGIN", {fontSize: '90px'});
+  text = game.add.text(0,0, "BEGIN", {fontSize: '90px'});
   text.fixedToCamera = true;
   text.visible = true;
   text.inputEnabled = true;
   text.events.onInputUp.add(startGame)
+  text.anchor.set(0.5);
   
   f = game.add.bitmapData(200,20);
   f.ctx.beginPath();
   f.ctx.rect(0,0,200,20);
   f.ctx.fillStyle = '#000000';
   f.ctx.fill();
-  fuel = game.add.sprite(50,50, f)
+  fuel = game.add.sprite(0,0, f)
   fuel.fixedToCamera = true;
 
   n = game.add.bitmapData(200,20);
@@ -66,7 +74,7 @@ function create() {
   n.ctx.rect(0,0,200,20);
   n.ctx.fillStyle = '#000000';
   n.ctx.fill();
-  nectar = game.add.sprite(550,50, n)
+  nectar = game.add.sprite(0,0, n)
   nectar.fixedToCamera = true;
   
   // The little flowers our with nectar for our bird to power-up
@@ -78,12 +86,12 @@ function create() {
   lavender.ctx.fillStyle = '#C097E6';
   lavender.ctx.fill();
 
-
   game.camera.follow(player); //always center player
 
   cursors = game.input.keyboard.createCursorKeys();
   game.input.onDown.add(listener, this);
- 
+  
+  layoutUI();
 }
 
 function gameOver() {
@@ -192,6 +200,41 @@ var  listener = function(pointer){
   }
 };
 // check for collision with flowers
+
+function layoutUI() {
+  if (!game || !game.camera) return;
+  
+  var viewWidth = game.camera.view.width;
+  var viewHeight = game.camera.view.height;
+  
+  var margin = viewWidth * 0.05;
+  var gaugeWidth = viewWidth * 0.2;
+  
+  t1.cameraOffset.x = margin;
+  t1.cameraOffset.y = viewHeight * 0.05;
+  
+  t2.cameraOffset.x = viewWidth * 0.57;
+  t2.cameraOffset.y = viewHeight * 0.05;
+  
+  fuelGauge.clear();
+  fuelGauge.lineStyle(2, 0x000000, 1);
+  fuelGauge.drawRect(margin, viewHeight * 0.1, gaugeWidth, 20);
+  
+  nectarGauge.clear();
+  nectarGauge.lineStyle(2, 0x000000, 1);
+  nectarGauge.drawRect(viewWidth * 0.57, viewHeight * 0.1, gaugeWidth, 20);
+  
+  fuel.cameraOffset.x = margin;
+  fuel.cameraOffset.y = viewHeight * 0.1;
+  fuel.width = gaugeWidth;
+  
+  nectar.cameraOffset.x = viewWidth * 0.57;
+  nectar.cameraOffset.y = viewHeight * 0.1;
+  nectar.width = gaugeWidth;
+  
+  text.cameraOffset.x = viewWidth * 0.5;
+  text.cameraOffset.y = viewHeight * 0.5;
+}
 
 function render() {
 

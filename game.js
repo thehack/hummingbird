@@ -81,11 +81,11 @@ function create() {
   // The little flowers with nectar for our bird to power-up
   flowers = game.add.group();
 
-  // Create reusable 10x10 hitbox for collision detection
+  // Create reusable 10x10 transparent hitbox for collision detection
   hitboxBitmap = game.add.bitmapData(10,10);
   hitboxBitmap.ctx.beginPath();
   hitboxBitmap.ctx.rect(0,0,10,10);
-  hitboxBitmap.ctx.fillStyle = '#C097E6';
+  hitboxBitmap.ctx.fillStyle = 'rgba(0,0,0,0)'; // Completely transparent
   hitboxBitmap.ctx.fill();
 
   game.camera.follow(player); //always center player
@@ -114,16 +114,17 @@ function startGame() {
   player.x = 100;
   player.y = 290;
   for (var i = 0; i < 40; i++) {
-    // Create invisible 10x10 hitbox for precise collision
-    var flower = flowers.create(game.world.randomX, game.world.randomY, hitboxBitmap);
-    flower.alpha = 0; // Make hitbox invisible
+    var x = game.world.randomX;
+    var y = game.world.randomY;
+    
+    // Create transparent 10x10 hitbox for precise collision
+    var flower = flowers.create(x, y, hitboxBitmap);
     flower.juice = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
     
-    // Add decorative lavender flower image as a child
-    var flowerImage = game.add.sprite(5, 5, 'lavenderFlower');
+    // Create decorative lavender flower image at the same position
+    var flowerImage = game.add.sprite(x + 5, y + 5, 'lavenderFlower');
     flowerImage.anchor.set(0.5, 0.5);
-    flowerImage.scale.set(0.5); // Scale to visible size (larger than hitbox for visual appeal)
-    flower.addChild(flowerImage);
+    flowerImage.scale.set(0.15); // Scale to visible size
     flower.flowerImage = flowerImage;
   };
 
